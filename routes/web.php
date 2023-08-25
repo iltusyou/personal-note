@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Http\Controllers\WorkoutController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -32,4 +34,19 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
+    Route::get('/workout', [WorkoutController::class, 'index'])
+    ->name('workout.index');
+
+    Route::get('/workout/edit/{id?}', [WorkoutController::class, 'edit'])
+    ->name('workout.edit');    
+
+    Route::post('/workout/getRecords', [WorkoutController::class, 'getRecords'])
+    ->name('workout.getRecords');
+
+    Route::post('/workout/getRecord{id}', [WorkoutController::class, 'getRecord'])
+    ->name('workout.getRecord');
+
+    Route::post('/workout/store', [WorkoutController::class, 'store'])
+    ->name('workout.store');
 });
