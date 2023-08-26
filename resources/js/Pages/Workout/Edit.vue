@@ -11,23 +11,25 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <div>
-                        <div class="bg-gray-200 bg-opacity-25 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 p-6 lg:p-8">
+                        <div class="bg-gray-200 bg-opacity-25 grid grid-cols-1 gap-6 lg:gap-8 p-6 lg:p-8">
                             <div>
-                                <input class="ml-4" type="text" placeholder="體重" v-model="weight">
+                                <label>體重</label>
+                                <input class="ml-4" type="text" v-model="weight">
                             </div>
-
+                            <hr class="my-2 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
                             <div>
                                 <TrainingVolume :weightTrainingOptions="weightTrainingOptions"
-                                    :weightTraining="weightTraining" 
-                                    @update:weightTraining="updateWeightTraining"
-                                    @update:load="updateLoad"
-                                    @update:repetitions="updateRepetitions">
+                                    :weightTraining="weightTraining" @update:weightTraining="updateWeightTraining"
+                                    @update:load="updateLoad" @update:repetitions="updateRepetitions"
+                                    @add:trainingVolume="addTrainingVolume">
                                 </TrainingVolume>
                             </div>
-
+                            <hr class="my-2 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
                             <div>
+                                <button type="button" class="bg-green-500 text-white px-4 py-2 rounded"
+                                    @click="handleSave">新增重訓類別</button>
                                 <button type="button" class="bg-blue-500 text-white px-4 py-2 rounded ml-4"
-                                    @click="handleSave">save</button>
+                                    @click="handleSave">儲存</button>
                             </div>
                         </div>
                     </div>
@@ -57,12 +59,12 @@ export default {
 
         const weightTraining = ref({
             name: '',
-            trainingVolume: [{
-                load: 10,
-                repetitions: 12
+            trainingVolumes: [{
+                load: 0,
+                repetitions: 0
             }]
         });
-        const weightTrainingOptions = ref([]);
+        const weightTrainingOptions = ref([]);        
 
         const handleRecordDate = () => {
             let urlParams = new URLSearchParams(window.location.search);
@@ -82,12 +84,20 @@ export default {
             }];
         }
 
+        const addTrainingVolume = () => {
+            weightTraining.value.trainingVolumes.push({
+                load: 0,
+                repetitions: 0
+            });
+        }
+
         const updateWeightTraining = (selected) => {
             weightTraining.value.name = selected;
         }
 
-        const updateLoad = (input) => {
-            weightTraining.value.load = input;
+        const updateLoad = (input, index) => {
+            console.log(input, index)
+            weightTraining.value.trainingVolumes[index].load=input;
         }
 
         const updateRepetitions = (input) => {
@@ -130,7 +140,8 @@ export default {
             updateWeightTraining,
             handleWeightTrainingOptions,
             updateLoad,
-            updateRepetitions
+            updateRepetitions,
+            addTrainingVolume
         }
     }
 }
