@@ -41,9 +41,8 @@ onMounted(() => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <div>
-                        <Link :href="route('workout.edit')" :class="classes">
-                        新增
-                        </Link>
+                        <a :href="'/workout/edit/'"
+                                        class="bg-blue-500 text-white px-4 py-2 rounded ml-4">新增</a>                        
                     </div>
 
                     <div>

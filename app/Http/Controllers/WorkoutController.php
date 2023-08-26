@@ -4,11 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Laravel\Jetstream\Jetstream;
-use App\Models\Record;
 
+use App\Models\Record;
+use App\Models\WeightTraining;
+use Illuminate\Support\Facades\Log;
 
 class WorkoutController extends Controller
 {
+    public function type(Request $request){
+        return Jetstream::inertia()->render($request, 'Workout/Type');
+    }
+
     public function index(Request $request){
         return Jetstream::inertia()->render($request, 'Workout/Index');
     }
@@ -55,5 +61,37 @@ class WorkoutController extends Controller
         $req['user_id'] = $user->id;
         $data = Record::create($req);
         return response()->json(['status' => true, 'data' => $data], 201);
+    }
+
+
+    
+
+    public function getWeightTrainings(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user = Auth()->user();        
+        $data = WeightTraining::where('user_id', $user->id)->get();  
+        return response()->json(['status' => true, 'data' => $data]);
+    }
+
+    public function addWeightTraining(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user = Auth()->user();
+        $req = $request->all();
+        $req['user_id'] = $user->id;
+        $data = WeightTraining::create($req);
+
+        return response()->json(['status' => true, 'data' => $req], 200);
+    }
+
+    public function updateWeightTraining(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user = Auth()->user();
+
+        $data = WeightTraining::find($request->id);
+        $data->name = $request->name;
+        $data->default_weight = $request->default_weight;
+        $data->update();        
+        
+        return response()->json(['status' => true, 'data' => $data], 200);
     }
 }

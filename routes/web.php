@@ -38,6 +38,9 @@ Route::middleware([
     Route::get('/workout', [WorkoutController::class, 'index'])
     ->name('workout.index');
 
+    Route::get('/workout/type', [WorkoutController::class, 'type'])
+    ->name('workout.type');
+
     Route::get('/workout/edit/{id?}', [WorkoutController::class, 'edit'])
     ->name('workout.edit');    
 
@@ -49,4 +52,8 @@ Route::middleware([
 
     Route::post('/workout/store', [WorkoutController::class, 'store'])
     ->name('workout.store');
+    
+    Route::get('/workout/getWeightTrainings', [WorkoutController::class, 'getWeightTrainings']);
+    Route::post('/workout/addWeightTraining', [WorkoutController::class, 'addWeightTraining']);
+    Route::post('/workout/updateWeightTraining', [WorkoutController::class, 'updateWeightTraining']);
 });
