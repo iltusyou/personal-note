@@ -1,34 +1,3 @@
-<script setup>
-import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
-import { format } from "date-fns";
-
-const records = ref([])
-
-const handleRecords = async () => {
-    try {
-        const req = await axios.post('/workout/getRecords');
-        records.value = req.data.data;
-        console.log(req.data.data);
-    } catch (e) {
-
-    }
-}
-
-const dateFormat = (date) => {
-    return format(date);
-}
-
-
-onMounted(() => {
-    handleRecords();
-});
-
-
-
-</script>
-
 <template>
     <AppLayout title="Dashboard">
         <template #header>
@@ -40,24 +9,47 @@ onMounted(() => {
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div>
-                        <a :href="'/workout/edit/'"
-                                        class="bg-blue-500 text-white px-4 py-2 rounded ml-4">新增</a>                        
-                    </div>
-
-                    <div>
-                        <table>
-                            <tr v-for="(val, idx) in records" :key="idx">
-                                <td>{{ val.record_date }}</td>
-                                <td>
-                                    <a :href="'/workout/edit/' + val.id"
-                                        class="bg-blue-500 text-white px-4 py-2 rounded ml-4">Edit</a>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                    <FullCalendar :options="calendarOptions"></FullCalendar>
                 </div>
             </div>
         </div>
     </AppLayout>
 </template>
+
+<script>
+import AppLayout from '@/Layouts/AppLayout.vue';
+import FullCalendar from '@fullcalendar/vue3'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import interactionPlugin from '@fullcalendar/interaction'
+
+
+export default {
+    components: {
+        AppLayout,
+        FullCalendar
+    },
+
+    setup() {
+          
+
+        const handleDateClick = (arg) => {      
+            
+            const url='/workout/edit?date='+arg.dateStr;                   
+            window.location.href=url;
+        }
+
+
+
+
+
+
+        return {
+            calendarOptions: {
+                plugins: [dayGridPlugin, interactionPlugin],
+                initialView: 'dayGridMonth',
+                dateClick: handleDateClick,
+            }
+        }
+    }
+}
+</script>

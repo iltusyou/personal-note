@@ -35,14 +35,20 @@ Route::middleware([
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::get('/workout', [WorkoutController::class, 'index'])
-    ->name('workout.index');
+    Route::get('/workout', function () {
+        return Inertia::render('Workout/Index');
+    })->name('workout.index');    
+
+    Route::get('/workout/edit', function () {
+        return Inertia::render('Workout/Edit');
+    })->name('workout.edit');    
+
+
+
+    
 
     Route::get('/workout/type', [WorkoutController::class, 'type'])
     ->name('workout.type');
-
-    Route::get('/workout/edit/{id?}', [WorkoutController::class, 'edit'])
-    ->name('workout.edit');    
 
     Route::post('/workout/getRecords', [WorkoutController::class, 'getRecords'])
     ->name('workout.getRecords');
