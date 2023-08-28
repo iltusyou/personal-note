@@ -7,22 +7,15 @@ use Laravel\Jetstream\Jetstream;
 
 use App\Models\Record;
 use App\Models\WeightTraining;
+use App\Models\TrainingVolume;
+use App\Models\WeightTrainingRecord;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 class WorkoutController extends Controller
-{
-    public function type(Request $request){
-        return Jetstream::inertia()->render($request, 'Workout/Type');
-    }
-
-    public function index(Request $request){
-        return Jetstream::inertia()->render($request, 'Workout/Index');
-    }
-
-    public function edit(Request $request, $id=0){
-        return Jetstream::inertia()->render($request, 'Workout/Edit', ['id'=> $id]);
-    }
-
+{    
     public function getRecords(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = Auth()->user();
@@ -36,10 +29,17 @@ class WorkoutController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getRecord($id): \Illuminate\Http\JsonResponse
-    {
-        $data=Record::findOrFail($id);
-        return response()->json($data, 200);
+    public function getRecord($date): \Illuminate\Http\JsonResponse
+    {              
+        //Log::info($date);           
+        $user = Auth()->user();
+
+        //$date = Carbon::parse($date+' 00:00:00');
+        $records = Record::with('weightTrainingRecords.trainingVolumns')->
+        where('user_id', $user->id)->whereDate('record_date', $date);
+        $record = $records->first();
+        Log::info($record);
+        return response()->json(['status' => true, 'data' => $record], 200);
     }
 
      /**
@@ -50,21 +50,56 @@ class WorkoutController extends Controller
      */
     public function store(Request $request): \Illuminate\Http\JsonResponse
     {
-        $user = Auth()->user();
+        DB::beginTransaction();
+        try{
+            $user = Auth()->user();
+            $date = Carbon::parse($request->recordDate)->setTimezone('Asia/Taipei');
 
+            $record = Record::where('user_id', $user->id)->where('record_date', $date);
+            // if ($record->first()) {
+            //     return update($request);
+            // }
+            $req = $request->all();                                
 
-        $data = Record::where('user_id', $user->id)->where('record_date', $request->record_date);
-        if ($data->first()) {
-            return response()->json(['status' => false, 'message' => 'Already exist']);
+            $record = new Record();
+            $record->user_id=$user->id;
+            $record->weight=$req['weight'];
+            $record->record_date= $date;
+            $record->save();
+
+            foreach ($req['weightTrainings'] as $weightTrainingItem){                               
+                $weightTrainingRecord = $record->weightTrainingRecords()->create([
+                    'weight_training_id'=> $weightTrainingItem['name']
+                ]);                      
+                
+                foreach($weightTrainingItem['trainingVolumes'] as $training_volumnsItem){
+                    $weightTrainingRecord -> trainingVolumns()->create([
+                        'load' =>  $training_volumnsItem['load'],
+                        'repetitions' => $training_volumnsItem['repetitions']
+                    ]);
+                }
+            }
+            DB::commit();
+            return response()->json(['status' => true, 'data' => $record], 201);
         }
-        $req = $request->all();
-        $req['user_id'] = $user->id;
-        $data = Record::create($req);
-        return response()->json(['status' => true, 'data' => $data], 201);
+        catch(Exception $e){
+            DB::rollBack();
+            Log::error($e.getmessage());
+            return response()->json(['status' => false, 'message' => 'serve error'], 500);
+        }
     }
 
+    public function update(Request $request): \Illuminate\Http\JsonResponse
+    {         
+        $req = $request->all();
+        $req['record_date']= $date;
+        Log::info($req);
 
-    
+        // $carbon = new Carbon($req['record_date'], 'Asia/Taipei');
+        // Log::info($carbon);
+
+        return response()->json(['status' => true, 'data' => $req]);
+    }
 
     public function getWeightTrainings(Request $request): \Illuminate\Http\JsonResponse
     {

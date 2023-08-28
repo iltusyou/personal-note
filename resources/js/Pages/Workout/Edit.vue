@@ -3,7 +3,7 @@
     <AppLayout title="Dashboard">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                重訓紀錄 {{ record_date }}
+                重訓紀錄 {{ recordDate }}
             </h2>
         </template>
 
@@ -16,18 +16,19 @@
                                 <label>體重</label>
                                 <input class="ml-4" type="text" v-model="weight">
                             </div>
-                            <hr class="my-2 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
-                            <div>
-                                <TrainingVolume :weightTrainingOptions="weightTrainingOptions"
-                                    :weightTraining="weightTraining" @update:weightTraining="updateWeightTraining"
+                            <hr class="my-2 h-0.5" />
+                            <div v-for="(item, idx) in weightTrainings">
+                                <TrainingVolume :index="idx" :weightTrainingOptions="weightTrainingOptions"
+                                    :weightTraining="item" @update:weightTrainingName="updateWeightTrainingName"
                                     @update:load="updateLoad" @update:repetitions="updateRepetitions"
-                                    @add:trainingVolume="addTrainingVolume">
+                                    @add:trainingVolume="addTrainingVolume" @delete:trainingVolume="deleteTrainingVolume">
                                 </TrainingVolume>
+                                <hr class="my-2 h-0.5" />
                             </div>
-                            <hr class="my-2 h-0.5 border-t-0 bg-neutral-100 opacity-100 dark:opacity-50" />
+
                             <div>
                                 <button type="button" class="bg-green-500 text-white px-4 py-2 rounded"
-                                    @click="handleSave">新增重訓類別</button>
+                                    @click="addWeightTraining">新增重訓類別</button>
                                 <button type="button" class="bg-blue-500 text-white px-4 py-2 rounded ml-4"
                                     @click="handleSave">儲存</button>
                             </div>
@@ -54,7 +55,7 @@ export default {
     },
 
     setup() {
-        const record_date = ref(null)
+        const recordDate = ref(null)
         const weight = ref(0);
 
         const weightTraining = ref({
@@ -64,67 +65,99 @@ export default {
                 repetitions: 0
             }]
         });
-        const weightTrainingOptions = ref([]);        
+
+        const weightTrainings = ref([]);
+
+        const weightTrainingOptions = ref([]);
 
         const handleRecordDate = () => {
             let urlParams = new URLSearchParams(window.location.search);
             let dateString = urlParams.get('date');
             const date = Moment(dateString).toDate();
+            recordDate.value = date;
+
             console.log(date);
-            record_date.value = date;
+            getRecord(dateString);
         }
 
-        const handleWeightTrainingOptions = () => {
-            weightTrainingOptions.value = [{
-                value: 1,
-                text: 'aaaa'
-            }, {
-                value: 2,
-                text: 'bbbb'
-            }];
+        const getRecord = async (date) => {
+            const req = await axios.get('/workout/getRecord/' + date);
+            if (req.data.message) {
+                return alert(req.data.message)
+            }
+            console.log(req.data.data);
+            const data = req.data.data;
+
+            if (data) {
+                weight.value = data.weight;
+                weightTrainings.value = data.weight_training_records.map(function (item) {
+                    return {
+                        name: item.weight_training_id,
+                        trainingVolumes: item.training_volumns.map(function (e) {
+                            return {
+                                load: e.load,
+                                repetitions: e.repetitions
+                            }
+                        })
+                    };
+                });
+            }
         }
 
-        const addTrainingVolume = () => {
-            weightTraining.value.trainingVolumes.push({
-                load: 0,
-                repetitions: 0
+        const addWeightTraining = () => {
+            weightTrainings.value.push({
+                name: '',
+                trainingVolumes: [{
+                    load: 0,
+                    repetitions: 0
+                }]
+            })
+        }
+
+        const handleWeightTrainingOptions = async () => {
+
+            const req = await axios.get('/workout/getWeightTrainings');
+            if (req.data.message) {
+                return alert(req.data.message)
+            }
+            console.log(req.data.data);
+
+            weightTrainingOptions.value = req.data.data.map(function (e) {
+                return {
+                    text: `${e.name}(預設:${e.default_weight})`,
+                    value: e.id
+                }
             });
         }
 
-        const updateWeightTraining = (selected) => {
-            weightTraining.value.name = selected;
+        const addTrainingVolume = (index, newItem) => {
+            weightTrainings.value[index].trainingVolumes.push(newItem);
         }
 
-        const updateLoad = (input, index) => {
-            console.log(input, index)
-            weightTraining.value.trainingVolumes[index].load=input;
+        const deleteTrainingVolume = (index, idx) => {
+            weightTrainings.value[index].trainingVolumes.splice(idx, 1);
         }
 
-        const updateRepetitions = (input) => {
-            weightTraining.value.repetitions = input;
+        const updateWeightTrainingName = (selected, index) => {
+            weightTrainings.value[index].name = selected;
+        }
+
+        const updateLoad = (input, index, i) => {
+            weightTrainings.value[index].trainingVolumes[i].load = input;
+        }
+
+        const updateRepetitions = (input, index, i) => {
+            weightTrainings.value[index].trainingVolumes[i].repetitions = input;
         }
 
         const handleSave = async () => {
-            console.log(weightTraining.value)
+            const data = {
+                recordDate: recordDate.value,
+                weight: weight.value,
+                weightTrainings: weightTrainings.value
+            };
 
-            //console.log(TrainingVolume.weightTraining)
-
-            // try {
-            //     const data = {
-            //         record_date: record_date.value,
-            //         weight: weight.value
-            //     };
-
-            //     const req = await axios.post('/workout/store', data);
-            //     if (req.data.message) {
-            //         alert(req.data.message)
-            //     }
-            //     else {
-            //         alert('success');
-            //     }
-            // } catch (e) {
-            //     console.log(e);
-            // }
+            const req = await axios.post('/workout/store', data);
         }
 
         onMounted(() => {
@@ -133,15 +166,20 @@ export default {
         });
 
         return {
-            handleSave,
-            weight, record_date,
-            weightTraining,
+            recordDate,
+            weight,
+            weightTrainings,
             weightTrainingOptions,
-            updateWeightTraining,
+
             handleWeightTrainingOptions,
+            addWeightTraining,
+            handleSave,
+
+            updateWeightTrainingName,
             updateLoad,
             updateRepetitions,
-            addTrainingVolume
+            addTrainingVolume,
+            deleteTrainingVolume
         }
     }
 }

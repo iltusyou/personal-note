@@ -43,21 +43,21 @@ Route::middleware([
         return Inertia::render('Workout/Edit');
     })->name('workout.edit');    
 
+    Route::get('/workout/type', function () {
+        return Inertia::render('Workout/Type');
+    })->name('workout.type');    
 
 
-    
-
-    Route::get('/workout/type', [WorkoutController::class, 'type'])
-    ->name('workout.type');
-
-    Route::post('/workout/getRecords', [WorkoutController::class, 'getRecords'])
+    Route::get('/workout/getRecords', [WorkoutController::class, 'getRecords'])
     ->name('workout.getRecords');
 
-    Route::post('/workout/getRecord{id}', [WorkoutController::class, 'getRecord'])
+    Route::get('/workout/getRecord/{date}', [WorkoutController::class, 'getRecord'])
     ->name('workout.getRecord');
 
     Route::post('/workout/store', [WorkoutController::class, 'store'])
     ->name('workout.store');
+    Route::post('/workout/update', [WorkoutController::class, 'update'])
+    ->name('workout.update');
     
     Route::get('/workout/getWeightTrainings', [WorkoutController::class, 'getWeightTrainings']);
     Route::post('/workout/addWeightTraining', [WorkoutController::class, 'addWeightTraining']);

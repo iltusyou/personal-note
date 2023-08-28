@@ -10,6 +10,12 @@ class TrainingVolumn extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'load',
+        'repetitions',
+        'record_weight_training_id'
+    ];  
+
     /**
      * Get the user that owns the TrainingVolumn
      *

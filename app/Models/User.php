@@ -69,8 +69,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Record);
     }
-
-    public function weightTrainings(){
-        return $this->hasMany(WeightTraining);
-    }
 }

@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('record_weight_training', function (Blueprint $table) {
+        Schema::create('weight_training_records', function (Blueprint $table) {
             $table->id();
-            $table->integer('record_id');
-            $table->integer('weight_training_id');
+            $table->foreignId('record_id');
+            $table->foreignId('weight_training_id');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('record_weight_training');
+        Schema::dropIfExists('weight_training_records');
     }
 };

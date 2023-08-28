@@ -54,6 +54,11 @@ const logout = () => {
                                 <NavLink :href="route('workout.index')" :active="route().current('workout.index')">
                                     workout
                                 </NavLink>
+                                <NavLink :href="route('workout.type')" :active="route().current('workout.index')">
+                                    workout type
+                                </NavLink>
+
+                                
                             </div>
                         </div>
 

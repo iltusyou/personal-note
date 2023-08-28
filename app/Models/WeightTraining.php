@@ -16,19 +16,7 @@ class WeightTraining extends Model
         'name',
         'default_weight',
         'user_id'
-    ];
+    ];    
 
-    public function records(){
-        return $this->belongsToMany(Record);
-    }
 
-    /**
-     * Get all of the comments for the WeightTraining
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function trainingVolumns()
-    {
-        return $this->hasMany(TrainingVolumn);
-    }
 }
