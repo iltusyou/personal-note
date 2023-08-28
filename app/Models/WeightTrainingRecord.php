@@ -3,6 +3,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Record;
 use App\Models\TrainingVolumn;
@@ -34,5 +35,10 @@ class WeightTrainingRecord extends Model
     public function trainingVolumns()
     {
         return $this->hasMany(TrainingVolumn::class);
+    }    
+
+    public function weightTraining()
+    {
+        return $this->belongsTo(WeightTraining::class);
     }
 }

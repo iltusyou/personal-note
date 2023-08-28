@@ -18,10 +18,43 @@ class WorkoutController extends Controller
 {    
     public function getRecords(Request $request): \Illuminate\Http\JsonResponse
     {
-        $user = Auth()->user();
-        sleep(3);
-        $data = Record::query()->where('user_id', $user->id)->get();
-        return response()->json(['status' => true, 'data' => $data]);
+        try{                    
+            $start = Carbon::parse($request->get('start'))->setTimezone('Asia/Taipei');
+            $end = Carbon::parse($request->get('end'))->setTimezone('Asia/Taipei');
+                        
+            $user = Auth()->user();        
+
+            $recordIds = Record::where('user_id',1)->
+            whereBetween('record_date',[$start,$end])->get()->
+            map(function($e){ 
+                return $e->id; 
+            });
+            
+            $weightTrainingRecords = WeightTrainingRecord::with('weightTraining')->
+            whereIn('record_id',$recordIds)->
+            get();
+
+            $result=$weightTrainingRecords->map(function($e){ 
+                return[
+                    'title' => $e->weightTraining->name, 
+                    'start'=>   str_replace(' 00:00:00', '', $e->record->record_date)
+                ];  
+            });
+                
+            // $weightTrainingRecords = WeightTrainingRecord::with(['record' => function ($query) use ($start, $end ) { 
+            //     $query-> whereBetween ('records.record_date',[$start,$end]);             
+            // }])->get();
+    
+            // $result = $weightTrainingRecords->map(function($e){ 
+            //     return ['title'=>$e->id, 'start' => $e->created_at]; 
+            // });
+    
+            return response()->json($result);
+        }
+        catch(Exception $e){
+            Log::error($e.getmessage());
+            return response()->json(['status' => false, 'message' => 'serve error'], 500);
+        }
     }
 
     /**
@@ -30,11 +63,8 @@ class WorkoutController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function getRecord($date): \Illuminate\Http\JsonResponse
-    {              
-        //Log::info($date);           
-        $user = Auth()->user();
-
-        //$date = Carbon::parse($date+' 00:00:00');
+    {                      
+        $user = Auth()->user();        
         $records = Record::with('weightTrainingRecords.trainingVolumns')->
         where('user_id', $user->id)->whereDate('record_date', $date);
         $record = $records->first();
@@ -53,7 +83,7 @@ class WorkoutController extends Controller
         DB::beginTransaction();
         try{
             $user = Auth()->user();
-            $date = Carbon::parse($request->recordDate)->setTimezone('Asia/Taipei');
+            $date = Carbon::parse($request->recordDate);
 
             $record = Record::where('user_id', $user->id)->where('record_date', $date);
             // if ($record->first()) {

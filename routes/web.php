@@ -31,6 +31,7 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
+
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
@@ -50,7 +51,6 @@ Route::middleware([
 
     Route::get('/workout/getRecords', [WorkoutController::class, 'getRecords'])
     ->name('workout.getRecords');
-
     Route::get('/workout/getRecord/{date}', [WorkoutController::class, 'getRecord'])
     ->name('workout.getRecord');
 

@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -67,6 +69,16 @@ class User extends Authenticatable
      */
     public function records(): HasMany
     {
-        return $this->hasMany(Record);
+        return $this->hasMany(Record::class);
+    }
+
+    /**
+     * Get all of the weightTrainingRecords for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function weightTrainingRecords(): HasManyThrough
+    {
+        return $this->hasManyThrough(Record::class, WeightTrainingRecord::class);
     }
 }

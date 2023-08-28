@@ -1,4 +1,3 @@
-
 <template>
     <AppLayout title="Dashboard">
         <template #header>
@@ -73,7 +72,7 @@ export default {
         const handleRecordDate = () => {
             let urlParams = new URLSearchParams(window.location.search);
             let dateString = urlParams.get('date');
-            const date = Moment(dateString).toDate();
+            const date = Moment(dateString).format('YYYY-MM-DD');
             recordDate.value = date;
 
             console.log(date);
@@ -83,7 +82,7 @@ export default {
         const getRecord = async (date) => {
             const req = await axios.get('/workout/getRecord/' + date);
             if (req.data.message) {
-                return alert(req.data.message)
+                return alert(req.data.message);
             }
             console.log(req.data.data);
             const data = req.data.data;
