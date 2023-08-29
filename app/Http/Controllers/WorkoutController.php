@@ -26,20 +26,20 @@ class WorkoutController extends Controller
                         
             $user = Auth()->user();        
 
-            $recordIds = Record::where('user_id',1)->
-            whereBetween('record_date',[$start,$end])->get()->
-            map(function($e){ 
+            $recordIds = Record::where('user_id',  $user->id)
+            ->whereBetween('record_date',[$start,$end])->get()
+            ->map(function($e){ 
                 return $e->id; 
             });
             
-            $weightTrainingRecords = WeightTrainingRecord::with('weightTraining')->
-            whereIn('record_id',$recordIds)->
-            get();
+            $weightTrainingRecords = WeightTrainingRecord::with('weightTraining')
+            ->whereIn('record_id',$recordIds)
+            ->get();
 
             $result=$weightTrainingRecords->map(function($e){ 
                 return[
                     'title' => $e->weightTraining->name, 
-                    'start'=>   str_replace(' 00:00:00', '', $e->record->record_date)
+                    'start' =>   str_replace(' 00:00:00', '', $e->record->record_date)
                 ];  
             });
                 
@@ -68,7 +68,8 @@ class WorkoutController extends Controller
     {                      
         $user = Auth()->user();        
         $records = Record::with('weightTrainingRecords.trainingVolumns')
-        ->where('user_id', $user->id)->whereDate('record_date', $date);
+        ->where('user_id', $user->id)
+        ->whereDate('record_date', $date);
         $record = $records->first();
         Log::info($record);
         return response()->json(['status' => true, 'data' => $record], 200);
@@ -112,7 +113,6 @@ class WorkoutController extends Controller
                 return $this->update($request, $record);
             }
            
-
             $record = new Record();
             $record->user_id=$user->id;
             $record->weight=$req['weight'];
@@ -133,12 +133,12 @@ class WorkoutController extends Controller
             }
 
             DB::commit();
-            return response()->json(['status' => true, 'data' => $record], 201);
+            return response()->json(['status' => true, 'data' => $record]);
         }
         catch(Exception $e){
             DB::rollBack();
             Log::error($e.getmessage());
-            return response()->json(['status' => false, 'message' => 'serve error'], 500);
+            return response()->json(['status' => false, 'message' => ['serve error']]);
         }
     }
 
@@ -170,7 +170,7 @@ class WorkoutController extends Controller
     public function getWeightTrainings(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = Auth()->user();        
-        $data = WeightTraining::where('user_id', $user->id)->get();  
+        $data = WeightTraining::where('user_id', $user->id)->orderBy('name','asc')->get();  
         return response()->json(['status' => true, 'data' => $data]);
     }
 

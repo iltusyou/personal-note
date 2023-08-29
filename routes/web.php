@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\WorkoutController;
+use App\Http\Controllers\WorkoutRecordsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,18 +49,20 @@ Route::middleware([
         return Inertia::render('Workout/Type');
     })->name('workout.type');    
 
+    Route::get('/workout/records', function () {
+        return Inertia::render('Workout/Records');
+    })->name('workout.records');        
 
     Route::get('/workout/getRecords', [WorkoutController::class, 'getRecords'])
     ->name('workout.getRecords');
     Route::get('/workout/getRecord/{date}', [WorkoutController::class, 'getRecord'])
     ->name('workout.getRecord');
-
     Route::post('/workout/store', [WorkoutController::class, 'store'])
-    ->name('workout.store');
-    Route::post('/workout/update', [WorkoutController::class, 'update'])
-    ->name('workout.update');
+    ->name('workout.store');    
     
     Route::get('/workout/getWeightTrainings', [WorkoutController::class, 'getWeightTrainings']);
     Route::post('/workout/addWeightTraining', [WorkoutController::class, 'addWeightTraining']);
     Route::post('/workout/updateWeightTraining', [WorkoutController::class, 'updateWeightTraining']);
+
+    Route::get('/workoutRecords/list', [WorkoutRecordsController::class, 'list']);
 });

@@ -52,13 +52,15 @@ const logout = () => {
                                     Dashboard
                                 </NavLink>
                                 <NavLink :href="route('workout.index')" :active="route().current('workout.index')">
-                                    workout
+                                    新增重訓紀錄
                                 </NavLink>
-                                <NavLink :href="route('workout.type')" :active="route().current('workout.index')">
-                                    workout type
+                                <NavLink :href="route('workout.type')" :active="route().current('workout.type')">
+                                    重訓類別管理
                                 </NavLink>
-
-                                
+                                <NavLink :href="route('workout.records')" :active="route().current('workout.records')">
+                                    重訓紀錄
+                                </NavLink>
+                           
                             </div>
                         </div>
 
