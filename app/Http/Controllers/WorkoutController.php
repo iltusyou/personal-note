@@ -14,6 +14,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 
+use Illuminate\Support\Facades\Validator;
+
 class WorkoutController extends Controller
 {    
     public function getRecords(Request $request): \Illuminate\Http\JsonResponse
@@ -79,9 +81,29 @@ class WorkoutController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request): \Illuminate\Http\JsonResponse
-    {
+    {             
         DB::beginTransaction();
         try{
+            $req = $request->all();                                
+
+            $validator = Validator::make($req, [            
+                'weight' => ['required', 'regex:/^[1-9]\d*(\.\d{1})?$/'],
+                'weightTrainings.*.name' => 'required',
+                'weightTrainings.*.trainingVolumes.*.load' => 'required|numeric|min:1',
+                'weightTrainings.*.trainingVolumes.*.repetitions' => 'required|numeric|min:1',
+            ],[
+                'weight'=>'體重需為小數點最多1位的數字',
+                'weightTrainings.*.name' => '重訓類別必填',
+                'weightTrainings.*.trainingVolumes.*.load' => '負重為大於0的整數',
+                'weightTrainings.*.trainingVolumes.*.repetitions' => '次數為大於0的整數',
+            ]);
+
+            if ($validator->fails()) {
+
+                $errors = collect($validator->errors())->flatten()->all();
+                return response()->json(['status' => false, 'message'=>  $errors], 200);
+            }
+
             $user = Auth()->user();
             $date = Carbon::parse($request->recordDate);
 
@@ -89,7 +111,7 @@ class WorkoutController extends Controller
             if ($record) {
                 return $this->update($request, $record);
             }
-            $req = $request->all();                                
+           
 
             $record = new Record();
             $record->user_id=$user->id;

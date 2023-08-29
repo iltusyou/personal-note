@@ -158,7 +158,9 @@ export default {
 
             const req = await axios.post('/workout/store', data);
             if (req.data.message) {
-                return alert(req.data.message)
+                console.log(req.data.message);
+                const msg = req.data.message.join('\n');
+                return alert(msg)
             }
             else{
                 alert('success');
