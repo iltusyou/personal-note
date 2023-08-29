@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->integer('load');
             $table->integer('repetitions');
-            $table->foreignId('weight_training_record_id');
+            $table->foreignId('weight_training_record_id')
+            ->on('weight_training_records')
+            ->onDelete('cascade');
             $table->timestamps();
         });
     }

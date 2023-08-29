@@ -157,6 +157,12 @@ export default {
             };
 
             const req = await axios.post('/workout/store', data);
+            if (req.data.message) {
+                return alert(req.data.message)
+            }
+            else{
+                alert('success');
+            }
         }
 
         onMounted(() => {

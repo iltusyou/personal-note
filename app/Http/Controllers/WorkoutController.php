@@ -65,8 +65,8 @@ class WorkoutController extends Controller
     public function getRecord($date): \Illuminate\Http\JsonResponse
     {                      
         $user = Auth()->user();        
-        $records = Record::with('weightTrainingRecords.trainingVolumns')->
-        where('user_id', $user->id)->whereDate('record_date', $date);
+        $records = Record::with('weightTrainingRecords.trainingVolumns')
+        ->where('user_id', $user->id)->whereDate('record_date', $date);
         $record = $records->first();
         Log::info($record);
         return response()->json(['status' => true, 'data' => $record], 200);
@@ -85,10 +85,10 @@ class WorkoutController extends Controller
             $user = Auth()->user();
             $date = Carbon::parse($request->recordDate);
 
-            $record = Record::where('user_id', $user->id)->where('record_date', $date);
-            // if ($record->first()) {
-            //     return update($request);
-            // }
+            $record = Record::where('user_id', $user->id)->where('record_date', $date)->first();
+            if ($record) {
+                return $this->update($request, $record);
+            }
             $req = $request->all();                                
 
             $record = new Record();
@@ -109,6 +109,7 @@ class WorkoutController extends Controller
                     ]);
                 }
             }
+
             DB::commit();
             return response()->json(['status' => true, 'data' => $record], 201);
         }
@@ -119,16 +120,29 @@ class WorkoutController extends Controller
         }
     }
 
-    public function update(Request $request): \Illuminate\Http\JsonResponse
+    public function update(Request $request, Record $record): \Illuminate\Http\JsonResponse
     {         
-        $req = $request->all();
-        $req['record_date']= $date;
-        Log::info($req);
+        $req = $request->all();                                                
+        $record->weight=$req['weight'];        
+        $record->save();
 
-        // $carbon = new Carbon($req['record_date'], 'Asia/Taipei');
-        // Log::info($carbon);
+        $record->weightTrainingRecords()->delete();
 
-        return response()->json(['status' => true, 'data' => $req]);
+        foreach ($req['weightTrainings'] as $weightTrainingItem){                               
+            $weightTrainingRecord = $record->weightTrainingRecords()->create([
+                'weight_training_id'=> $weightTrainingItem['name']
+            ]);                      
+            
+            foreach($weightTrainingItem['trainingVolumes'] as $training_volumnsItem){
+                $weightTrainingRecord -> trainingVolumns()->create([
+                    'load' =>  $training_volumnsItem['load'],
+                    'repetitions' => $training_volumnsItem['repetitions']
+                ]);
+            }
+        }
+        
+        DB::commit();
+        return response()->json(['status' => true, 'data' => $record]);
     }
 
     public function getWeightTrainings(Request $request): \Illuminate\Http\JsonResponse
