@@ -1,10 +1,17 @@
 <template>
     <div>
         <div class="mt-4">
+            <button type="button"
+                    class="bg-red-500 inline-block rounded bg-primary px-2 pb-1 pt-1 text-xs font-medium uppercase leading-normal text-white "
+                    @click="deleteWeightTraining"
+                    >
+                    X
+                </button>
             <label>重訓類別</label>
             <select :value="weightTraining.name" @change="updateWeightTrainingName($event)" class="ml-4">
                 <option v-for="(val, idx) in weightTrainingOptions" :value="val.value">{{ val.text }}</option>
             </select>
+  
             <div v-for="(val, idx) in weightTraining.trainingVolumes" class="mt-4">
                 <input type="text" placeholder="負重" :value="val.load"
                     @input="updateLoad($event, idx)">
@@ -38,8 +45,13 @@ const emit = defineEmits([
     'update:load',
     'update:repetitions',
     'add:trainingVolume',
-    'delete:trainingVolume'
+    'delete:trainingVolume',
+    'delete:weightTraining'
 ])
+
+const deleteWeightTraining=()=>{
+    emit('delete:weightTraining', props.index);
+}
 
 const addTrainingVolume = () => {
     const newItem = {

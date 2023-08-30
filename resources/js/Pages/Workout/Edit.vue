@@ -20,7 +20,8 @@
                                 <TrainingVolume :index="idx" :weightTrainingOptions="weightTrainingOptions"
                                     :weightTraining="item" @update:weightTrainingName="updateWeightTrainingName"
                                     @update:load="updateLoad" @update:repetitions="updateRepetitions"
-                                    @add:trainingVolume="addTrainingVolume" @delete:trainingVolume="deleteTrainingVolume">
+                                    @add:trainingVolume="addTrainingVolume" @delete:trainingVolume="deleteTrainingVolume"
+                                    @delete:weightTraining="deleteWeightTraining">
                                 </TrainingVolume>
                                 <hr class="my-2 h-0.5" />
                             </div>
@@ -101,6 +102,10 @@ export default {
                     };
                 });
             }
+        }
+
+        const deleteWeightTraining=(index)=>{        
+            weightTrainings.value.splice(index, 1);            
         }
 
         const addWeightTraining = () => {
@@ -186,7 +191,8 @@ export default {
             updateLoad,
             updateRepetitions,
             addTrainingVolume,
-            deleteTrainingVolume
+            deleteTrainingVolume,
+            deleteWeightTraining
         }
     }
 }
