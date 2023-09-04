@@ -11,7 +11,7 @@ https://workout-records-demo.fly.dev/
 
 網站截圖
 
-![image](https://github.com/iltusyou/personal-note/blob/dev/docs/image/4-9-2023_9433_workout-records-demo.fly.dev.jpeg)
+![image](https://github.com/iltusyou/personal-note/blob/dev/docs/image/2023-09-04%20093746.png)
 
 ![image](https://github.com/iltusyou/personal-note/blob/dev/docs/image/4-9-2023_94213_workout-records-demo.fly.dev.jpeg)
 
